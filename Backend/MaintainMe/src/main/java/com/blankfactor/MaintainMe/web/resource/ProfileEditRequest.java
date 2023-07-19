@@ -15,9 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProfileEditRequest {
 
-    @NotBlank
-    @Size(min = 6,max = 20)
-    private String username;
+    private String token;
+
     @NotBlank
     @Size(min = 8,max = 50)
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$")

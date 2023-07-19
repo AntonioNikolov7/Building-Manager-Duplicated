@@ -70,10 +70,8 @@ public class UserService {
         role.setId(2L);
 
         UserRoleBuilding userRoleBuilding = new UserRoleBuilding(user, role, savedBuilding);
-
         userRoleBuildingRepository.save(userRoleBuilding);
-
-
+        authenticate(user);
     }
 
     @Transactional
@@ -81,48 +79,41 @@ public class UserService {
 
         UserRoleBuilding userRoleBuilding = new UserRoleBuilding();
 
-        User user;
+        Building building = buildingRepository.findById(managerCreateUser.getBuildingId()).orElse(null);
+        Role role = new Role();
+        role.setId(1L);
+        user.setUnit(unitRepository.findById(managerCreateUser.getUnitId()).orElse(null));
+        userRoleBuilding.setUser(user);
+        userRoleBuilding.setBuilding(building);
+        userRoleBuilding.setRole(role);
 
-        user=localUserRepository.getUserByEmail(managerCreateUser.getEmail());
+        String email = user.getEmail();
+        boolean isGoogleMail = GmailChecker.isGoogleEmail(email);
 
-        if (user==null) {
+        String subject;
+        String body;
 
-            user =new User();
-            user.setEmail(managerCreateUser.getEmail());
-            user.setFirstName(managerCreateUser.getFirstName());
-            user.setLastName(managerCreateUser.getLastName());
+        String password = RandomPassword.generateRandomPassword();
+        user.setPassword(encryptionService.encryptPassword(password));
 
-            Building building = buildingRepository.findById(managerCreateUser.getBuildingID()).orElse(null);
-            Role role = new Role();
-            role.setId(1L);
-            user.setUnit(unitRepository.findById(managerCreateUser.getUnitId()).orElse(null));
-            userRoleBuilding.setUser(user);
-            userRoleBuilding.setBuilding(building);
-            userRoleBuilding.setRole(role);
+        if (isGoogleMail) {
+            user.setPassword(RandomPassword.generateRandomPassword());
+            subject = "Account Registration - Login Credentials";
+            body = "Hello " + user.getFirstName() + ",\n\n"
+                    + "Your account has been created. Here are your credentials:\n"
+                    + "Password: " + password + "\n\n"
+                    + "Your account has been created. You can log in to the app using your Google profile or Your Credentials.\n"
+                    + "Click the following link to log in: " + "https://example.com/google-login";
+        } else {
 
-            String email = user.getEmail();
-            boolean isGoogleMail = GmailChecker.isGoogleEmail(email);
 
-            String subject;
-            String body;
-
-            if (isGoogleMail) {
-                user.setPassword(RandomPassword.generateRandomPassword());
-                subject = "Account Registration - Login Credentials";
-                body = "Hello " + user.getFirstName() + ",\n\n"
-                        + "Your account has been created. Here are your credentials:\n"
-                        + "Password: " + user.getPassword() + "\n\n"
-                        + "Your account has been created. You can log in to the app using your Google profile or Your Credentials.\n"
-                        + "Click the following link to log in: " + "https://example.com/google-login";
-            } else {
-                user.setPassword(RandomPassword.generateRandomPassword());
-                // Send email with a link to login and the credentials (username and randomly generated password)
-                subject = "Account Registration - Login Credentials";
-                body = "Hello " + user.getFirstName() + ",\n\n"
-                        + "Your account has been created. Here are your credentials:\n"
-                        + "Password: " + user.getPassword() + "\n\n"
-                        + "Please login and change your password for security reasons.";
-            }
+            // Send email with a link to login and the credentials (username and randomly generated password)
+            subject = "Account Registration - Login Credentials";
+            body = "Hello " + user.getFirstName() + ",\n\n"
+                    + "Your account has been created. Here are your credentials:\n"
+                    + "Password: " + password + "\n\n"
+                    + "Please login and change your password for security reasons.";
+        }
 
             localUserRepository.save(user);
 
@@ -153,8 +144,6 @@ public class UserService {
     public void updateResetPasswordToken(String token, String email) throws Exception {
 
         PasswordResetToken passwordResetToken = new PasswordResetToken();
-
-
         User user = localUserRepository.getUserByEmail(email);
         resetTokenRepository.deleteAllByUser_Id(user.getId());
 
@@ -189,8 +178,8 @@ public class UserService {
 
         PasswordResetToken passwordResetToken = resetTokenRepository.getPasswordResetTokenByEmail(user.getEmail());
         resetTokenRepository.delete(passwordResetToken);
-
         localUserRepository.save(user);
+
     }
 
     private String getEmailFromToken(OAuth2AuthenticationToken oAuth2AuthenticationToken) {
@@ -212,10 +201,7 @@ public class UserService {
 
 
     public Map<String, Object> getRoleInBuilding() {
-
         User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
-
         Map<String, Object> roleInBuilding = userRoleBuildingRepository.findRoleAndBuildingByUserId(authUser.getId());
         return roleInBuilding;
     }

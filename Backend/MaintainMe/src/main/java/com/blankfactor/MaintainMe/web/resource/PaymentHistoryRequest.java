@@ -1,4 +1,4 @@
-package com.blankfactor.MaintainMe.web.resource.Notification;
+package com.blankfactor.MaintainMe.web.resource;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationDeleteRequest {
+public class PaymentHistoryRequest {
 
     private String token;
+
 }

@@ -6,6 +6,7 @@ import com.blankfactor.MaintainMe.entity.User;
 import com.blankfactor.MaintainMe.repository.LocalUserRepository;
 import com.blankfactor.MaintainMe.repository.UnitRepository;
 import com.blankfactor.MaintainMe.web.resource.ProfileEditRequest;
+import com.blankfactor.MaintainMe.web.resource.ProfileInfoRequest;
 import com.blankfactor.MaintainMe.web.resource.UserInfoResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,12 +23,13 @@ public class ProfileService {
     private final UnitRepository unitRepository;
 
     private final EncryptionService encryptionService;
+    private final JWTService jwtService;
 
 
-    public UserInfoResponse getInfo(){
+    public UserInfoResponse getInfo(ProfileInfoRequest request){
 
-
-        User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        String email =  jwtService.getEmail(request.getToken());
+        User authUser = userRepository.getUserByEmail(email);
 
         List units = unitRepository.findByUsers(authUser);
 
@@ -40,7 +42,8 @@ public class ProfileService {
     @Transactional(rollbackFor = Exception.class)
     public User editInfo( ProfileEditRequest request){
 
-        User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        String email =  jwtService.getEmail(request.getToken());
+        User authUser = userRepository.getUserByEmail(email);
 
         authUser.setEmail(request.getEmail());
         authUser.setPassword(encryptionService.encryptPassword(request.getPassword()));

@@ -3,7 +3,6 @@ package com.blankfactor.MaintainMe.web.controller;
 import com.blankfactor.MaintainMe.entity.Notification;
 import com.blankfactor.MaintainMe.service.NotificationService;
 import com.blankfactor.MaintainMe.web.exception.InvalidNotificationException;
-import com.blankfactor.MaintainMe.web.resource.Notification.NotificationByBuildingRequest;
 import com.blankfactor.MaintainMe.web.resource.Notification.NotificationDeleteRequest;
 import com.blankfactor.MaintainMe.web.resource.Notification.NotificationEditRequest;
 import com.blankfactor.MaintainMe.web.resource.Notification.NotificationRequest;
@@ -21,9 +20,9 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/building")
-    public List<Notification> getNotificationsByBuildingId(@RequestBody NotificationByBuildingRequest request) {
-        return notificationService.getAllNotificationsByBuilding(request);
+    @GetMapping("/building/{id}")
+    public List<Notification> getNotificationsByBuildingId(@PathVariable("id") Long id) {
+        return notificationService.getAllNotificationsByBuilding(id);
     }
 
     @PostMapping("/send")
@@ -31,14 +30,14 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.sendNotification(request));
     }
 
-    @PostMapping("/edit")
-    public ResponseEntity<Notification> editNotification(@RequestBody NotificationEditRequest request) throws Exception {
-        return ResponseEntity.ok(notificationService.editNotification(request));
+    @PostMapping("/edit/{id}")
+    public ResponseEntity<Notification> editNotification(@RequestBody NotificationEditRequest request,@PathVariable("id") Long id) throws Exception {
+        return ResponseEntity.ok(notificationService.editNotification(request, id));
     }
 
-    @PostMapping("/delete")
-    public ResponseEntity<Notification> deleteNotification(@RequestBody NotificationDeleteRequest request) {
-        return ResponseEntity.ok(notificationService.deleteNotification(request));
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Notification> deleteNotification(@RequestBody NotificationDeleteRequest request,@PathVariable("id") Long id) {
+        return ResponseEntity.ok(notificationService.deleteNotification(request, id));
     }
 
     @ExceptionHandler(InvalidNotificationException.class)

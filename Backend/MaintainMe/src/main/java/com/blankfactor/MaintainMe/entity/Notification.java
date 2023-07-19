@@ -25,12 +25,12 @@ public class Notification {
     @Column(name = "message", nullable = false)
     @NotBlank(message = "message title cannot be empty.")
     @NotEmpty
-    private String messageTitle;
+    private String title;
 
     @Column(name = "information", nullable = false)
     @NotBlank(message = "message information cannot be empty.")
     @NotEmpty
-    private String information;
+    private String description;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "date", nullable = false)
