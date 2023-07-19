@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -11,7 +11,6 @@ import {
   Typography,
   useTheme,
   Tooltip,
-  FormHelperText,
 } from "@mui/material";
 import {
   MessageOutlinedIcon,
@@ -29,25 +28,32 @@ import {
 } from "../../store/comment/commentSlice";
 import { Comment } from "../../store/comment/commentTypes";
 import { RootState } from "../../store/store";
-import DisabledTabs from "./NotificationTabs";
-import { deleteNotification } from "../../store/notification/notificationSlice";
 import { NotificationCardProps } from "./notificationCardProps";
 import { getStyles } from "./styles";
+import apiService from "../../services/apiService";
 
 const NotificationCard: React.FC<NotificationCardProps> = ({
   id,
   title,
   description,
-  currentUser,
   date,
 }) => {
   const [showMessageInput, setShowMessageInput] = useState(false);
-  const [comment, setComment] = useState("");
+  const [text, setText] = useState("");
+  const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false);
   const [editCommentId, setEditCommentId] = useState<null | number>(null);
   const [editCommentText, setEditCommentText] = useState("");
   const [commentError, setCommentError] = useState(false);
   const [editCommentError, setEditCommentError] = useState(false);
+
+  let role: string | null = localStorage.getItem("role");
+  const token: string | undefined = localStorage.getItem("token") || undefined;
+
+  let currentUser;
+  if (role === "1") {
+    currentUser = true;
+  }
 
   const currentComment = useSelector((state: RootState) =>
     state.comment.filter((comment: Comment) => comment.notificationId === id)
@@ -66,26 +72,59 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   };
 
   const handleDeleteClick = () => {
-    dispatch(deleteNotification(id));
+    const deleteAnnouncement = async () => {
+      try {
+        const response = await apiService.deleteAnnouncement(id, token);
+        console.log(response);
+      } catch (error) {
+        console.error(error);
+      }
+      window.location.reload();
+    };
+    deleteAnnouncement();
   };
 
-  const handleSendClick = () => {
-    if (comment.trim() === "") {
+  const handleEditAnnouncement = () => {
+    const editAnnouncement = async () => {
+      try {
+        const response = await apiService.editAnnouncement(id, token);
+      } catch (error) {}
+    };
+    editAnnouncement();
+  };
+
+  const handleSendClick = async () => {
+    if (text.trim() === "") {
       setCommentError(true);
       return;
     }
-
-    dispatch(
-      addComment({
-        id: Date.now(),
-        notificationId: id,
-        text: comment,
-        commenter: "currentUser",
-      })
-    );
-    setComment("");
-    setCommentError(false);
+    try {
+      const response = await apiService.postComment(id, text, token);
+      if (response) {
+        setText("");
+        setCommentError(false);
+      }
+    } catch (error) {
+      console.error("Error while posting the comment: ", error);
+    }
   };
+
+  useEffect(() => {
+    const getAnnouncementComments = async () => {
+      const announcementId = id;
+      try {
+        const response = await apiService.getComments(announcementId);
+        if (response) {
+          response.data.forEach((comment) => {
+            console.log(comment);
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getAnnouncementComments();
+  }, [id]);
 
   const handleDeleteComment = (commentId: number) => {
     dispatch(deleteComment(commentId));
@@ -125,13 +164,22 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   };
 
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setComment(e.target.value);
+    setText(e.target.value);
     setCommentError(false);
+  };
+
+  const formatDateTime = (dateTimeString: string) => {
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    const dateTime = new Date(dateTimeString);
+    return dateTime.toLocaleString(undefined, options);
   };
 
   return (
     <Box sx={styles.outerBox}>
-      {currentUser && <DisabledTabs />}
       <Card sx={styles.card}>
         <CardContent>
           <Typography
@@ -139,7 +187,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
             component="div"
             sx={styles.subtitleTypography}
           >
-            {date}
+            {formatDateTime(date)}
           </Typography>
 
           <Typography variant="h5" component="div" sx={styles.h5Typography}>
@@ -160,7 +208,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
                 variant="outlined"
                 placeholder="Post a comment..."
                 fullWidth
-                value={comment}
+                value={text}
                 onChange={handleCommentChange}
                 sx={styles.textField}
               />
@@ -192,14 +240,20 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
             <MessageOutlinedIcon />
           </Button>
           {!currentUser && (
-            <Button
-              sx={styles.deleteButton}
-              size="small"
-              onClick={handleDeleteClick}
-              title="Delete notification"
-            >
-              <DeleteOutlineOutlinedIcon />
-            </Button>
+            <>
+              <Button onClick={handleEditAnnouncement} size="small">
+                <ModeEditOutlineOutlinedIcon />
+              </Button>
+
+              <Button
+                sx={styles.deleteButton}
+                size="small"
+                onClick={handleDeleteClick}
+                title="Delete notification"
+              >
+                <DeleteOutlineOutlinedIcon />
+              </Button>
+            </>
           )}
         </CardActions>
 

@@ -4,6 +4,7 @@ import logo from "../../assets/blankfactor-logo.svg";
 import { useDispatch } from "react-redux";
 import { setRole } from "../../store/loggedUser/loggedUser";
 import { authService } from "../../services/authService";
+import apiService from "../../services/apiService";
 
 interface HomeProps {
   manager: boolean;
@@ -11,19 +12,31 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = () => {
-  const dispatch = useDispatch();
   const token = localStorage.getItem("token");
+  const dispatch = useDispatch();
+  // window.location.reload();
+
   if (token) {
     const getRole = async () => {
       let roleResponse;
       try {
-        roleResponse = await authService.getUserRole();
+        roleResponse = await authService.getUserRole(token);
         dispatch(setRole(roleResponse.roleId));
       } catch (roleError) {}
       return roleResponse ? roleResponse.roleId : null;
     };
 
     getRole();
+
+    const getRelatedBuildingId = async () => {
+      try {
+        const response = await apiService.getManagedBuildings();
+        localStorage.setItem("buildingId", response.data[0].buildingId);
+        console.log(response);
+      } catch (error) {}
+    };
+
+    getRelatedBuildingId();
   }
 
   return (

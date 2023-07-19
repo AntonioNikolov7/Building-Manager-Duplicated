@@ -24,5 +24,5 @@ export interface RegistrationRequest {
 
 export interface CreateUser {
   buildingResource: BuildingResource;
-  registrationRequest: RegistrationRequest;
+  registrationRequestManager: RegistrationRequest;
 }

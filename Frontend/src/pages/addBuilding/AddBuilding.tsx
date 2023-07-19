@@ -40,7 +40,8 @@ const AddBuilding: React.FC = () => {
   useEffect(() => {
     const fetchCountryNames = async () => {
       try {
-        const data = await apiService.getAllCountries();
+        const response = await apiService.getAllCountries();
+        const data = response.data;
         const names = data.map((country: Country) => country.name.common);
         const sortedCountries = names.sort((a: string, b: string) =>
           a.localeCompare(b)

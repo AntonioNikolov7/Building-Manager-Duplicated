@@ -27,6 +27,8 @@ export const userState = createSlice({
       state.token = null;
       localStorage.removeItem("token");
       localStorage.removeItem("role");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("buildingId");
     },
   },
 });

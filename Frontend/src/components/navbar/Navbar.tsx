@@ -78,7 +78,6 @@ const Navbar = ({ currentUser, manager }: NavbarProps) => {
     dispatch(logout());
     handleCloseUserMenu();
     navigate("/login");
-    window.location.reload();
   };
 
   let pages = ["Notifications", "Payments"];

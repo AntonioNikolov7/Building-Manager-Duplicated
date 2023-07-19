@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   IconButton,
@@ -20,6 +20,7 @@ import useAuthValidations from "../../common/utils";
 import GoogleButton from "./GoogleButton";
 import { authService } from "../../services/authService";
 import "./ErrorStyles.scss";
+import apiService from "../../services/apiService";
 
 const SignInSide = () => {
   const theme = useTheme();
@@ -28,6 +29,7 @@ const SignInSide = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { formValues, setFormValues, formErrors, validateField } =
     useAuthValidations();
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
@@ -41,13 +43,30 @@ const SignInSide = () => {
     };
     try {
       const response = await authService.login(user);
-      localStorage.setItem("token", response.data.jwt);
-      localStorage.setItem("userId", response.data.user.id);
-      navigate("/");
-    } catch (error) {
+      const token = response.data.jwt;
+      const userId = response.data.user.id;
+
+      try {
+        const userBuildingIdResponse = await apiService.getManagedBuildings();
+        const buildingId = userBuildingIdResponse.data[0].buildingId;
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("buildingId", buildingId);
+
+        console.log("Token: ", token);
+        console.log("userId: ", userId);
+        console.log("buildingId: ", buildingId);
+
+        navigate("/");
+      } catch (error) {
+        console.error("Failed to get buildingId:", error);
+      }
+    } catch (error: any) {
       if (error.response?.status === 400) {
         setErrorMessage("Invalid Email or Password");
       } else {
+        console.error("Login failed:", error);
       }
     }
   };

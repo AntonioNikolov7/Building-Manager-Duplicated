@@ -1,9 +1,9 @@
 export interface RegisterUser {
-  unitID: number;
+  unitId: number;
   firstName: string;
   lastName: string;
   email: string;
-  buildingID: number;
+  buildingId: number;
 }
 
 export interface UsersState {

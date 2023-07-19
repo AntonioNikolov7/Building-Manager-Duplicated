@@ -31,10 +31,11 @@ public class CommentService {
         return commentRepository.getCommentByNotificationId(id);
     }
 
-    public Comment sendComment(CommentRequest commentRequest, Long id) throws Exception {
+    public Comment sendComment(CommentRequest commentRequest, Long id) throws Exception {      
 
         String email =  jwtService.getEmail(commentRequest.getToken());
         User authUser = userRepository.getUserByEmail(email);
+
 
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new Exception("Notification not found"));

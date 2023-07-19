@@ -192,6 +192,7 @@ public class UserService {
     public Collection<Map<String, Object>> getBuildingsManagedByLoggedManager() {
 
         User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        System.out.println(authUser.getEmail());
         Role role = new Role();
         role.setId(2L);
         Collection<Map<String, Object>> buildingId = userRoleBuildingRepository.getBuildingDataByUserIdAndRoleId(authUser.getId(), role.getId());
