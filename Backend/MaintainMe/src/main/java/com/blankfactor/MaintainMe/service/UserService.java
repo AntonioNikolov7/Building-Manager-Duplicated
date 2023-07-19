@@ -9,7 +9,10 @@ import com.blankfactor.MaintainMe.web.resource.Login.LoginRequest;
 import com.blankfactor.MaintainMe.web.utilities.GmailChecker;
 import com.blankfactor.MaintainMe.web.utilities.RandomPassword;
 import jakarta.mail.MessagingException;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +25,8 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Getter
+@Setter
 public class UserService {
 
     private final LocalUserRepository localUserRepository;
@@ -29,13 +34,11 @@ public class UserService {
     private final JWTService jwtService;
     private final AddressRepository addressRepository;
     private final BuildingRepository buildingRepository;
-
     private final EmailService emailService;
     private final UserRoleBuildingRepository userRoleBuildingRepository;
     private final ResetTokenRepository resetTokenRepository;
-
-    ManagerCreateUser managerCreateUser;
     private final UnitRepository unitRepository;
+    private final InvitationService invitationService;
 
 
     public User register(RegistrationRequestManager registrationRequestManager) throws UserAlreadyExistsException {
@@ -72,13 +75,9 @@ public class UserService {
     }
 
     @Transactional
-    public void ManagerCreateUser(ManagerCreateUser managerCreateUser) throws UserAlreadyExistsException, MessagingException, UnsupportedEncodingException {
+    public void ManagerCreateUser(ManagerCreateUser managerCreateUser) throws Exception {
 
         UserRoleBuilding userRoleBuilding = new UserRoleBuilding();
-        User user = new User();
-        user.setEmail(managerCreateUser.getEmail());
-        user.setFirstName(managerCreateUser.getFirstName());
-        user.setLastName(managerCreateUser.getLastName());
 
         Building building = buildingRepository.findById(managerCreateUser.getBuildingId()).orElse(null);
         Role role = new Role();
@@ -116,11 +115,14 @@ public class UserService {
                     + "Please login and change your password for security reasons.";
         }
 
-        localUserRepository.save(user);
+            localUserRepository.save(user);
 
-        emailService.sendEmail(user.getEmail(), subject, body);
+            emailService.sendEmail(user.getEmail(), subject, body);
 
-        userRoleBuildingRepository.save(userRoleBuilding);
+            userRoleBuildingRepository.save(userRoleBuilding);
+        }
+
+        invitationService.sendInvitation(managerCreateUser);
 
     }
 

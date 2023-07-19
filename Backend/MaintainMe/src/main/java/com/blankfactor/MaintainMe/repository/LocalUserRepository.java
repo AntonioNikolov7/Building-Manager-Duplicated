@@ -19,9 +19,13 @@ public interface LocalUserRepository extends ListCrudRepository<User,Long> {
 
     Optional<User> findByEmailIgnoreCase(String email);
 
+
+    Long findUserIdByEmail(String email);
+
     @Transactional(readOnly = true)
     @Query(value = "select * from user where auto_pay =1", nativeQuery = true)
     Slice<User> findAllByAutoPay(Pageable page);
+
 
 
     @Query(value = "SELECT * FROM User u WHERE u.email = :email", nativeQuery = true)
@@ -31,5 +35,11 @@ public interface LocalUserRepository extends ListCrudRepository<User,Long> {
     List<User> getUsersByUnitId(@Param("unitId") Long unitId);
     @Query(value = "select * from user where id = :userId", nativeQuery = true)
     User getUserById(@Param("userId") Long userID);
+
+
+    @Query(value = "select * from user where auto_pay =1", nativeQuery = true)
+    List<User> getUserByAutoPay();
+
+
 
 }

@@ -53,6 +53,17 @@ public class User {
     @Column(name = "auto_pay")
     private Integer autoPay;
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
+    public List<Invitation> getInvitations() {
+        return invitations;
+    }
+
+    public void setInvitations(List<Invitation> invitations) {
+        this.invitations = invitations;
+    }
+
     public Integer getAutoPay() {
         return autoPay;
     }

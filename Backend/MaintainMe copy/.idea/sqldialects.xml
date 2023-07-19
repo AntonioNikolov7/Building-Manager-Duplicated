@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/src/main/resources/db.migrations/V1__.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/db.migrations/V2__insert_into_role.sql" dialect="MySQL" />
-  </component>
-</project>

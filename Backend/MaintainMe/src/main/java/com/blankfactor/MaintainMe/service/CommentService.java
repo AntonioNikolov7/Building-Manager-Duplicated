@@ -31,13 +31,11 @@ public class CommentService {
         return commentRepository.getCommentByNotificationId(id);
     }
 
-    public Comment sendComment(CommentRequest commentRequest, Long id) throws Exception {
-
-        System.out.println("token:" + commentRequest.getToken());
-        System.out.println(commentRequest.getText());
+    public Comment sendComment(CommentRequest commentRequest, Long id) throws Exception {      
 
         String email =  jwtService.getEmail(commentRequest.getToken());
         User authUser = userRepository.getUserByEmail(email);
+
 
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new Exception("Notification not found"));
@@ -61,21 +59,36 @@ public class CommentService {
         return null;
     }
 
-    public Comment editComment(EditCommentRequest editCommentRequest) throws Exception{
+    public Comment editComment(EditCommentRequest editCommentRequest, Long id) throws Exception{
 
-        Comment comment = commentRepository.findById(editCommentRequest.getCommentId())
+        String email =  jwtService.getEmail(editCommentRequest.getToken());
+        User authUser = userRepository.getUserByEmail(email);
+
+        Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new Exception("Notification not found"));
 
-        comment.setText(editCommentRequest.getText());
-        commentRepository.save(comment);
+        if(comment.getUser().getId() == authUser.getId()) {
+            comment.setText(editCommentRequest.getText());
+            commentRepository.save(comment);
+        }else{
+            throw new Exception("No access");
+        }
 
         return null;
     }
 
-    public Comment deleteComment(DeleteCommentRequest request) throws Exception{
+    public Comment deleteComment(DeleteCommentRequest deleteCommentRequest, Long id){
+
+        Comment delete = commentRepository.getCommentById(id);
+
+        String email =  jwtService.getEmail(deleteCommentRequest.getToken());
+        User authUser = userRepository.getUserByEmail(email);
 
         try {
-            notificationRepository.deleteById(request.getCommentId());
+            if(authUser.getId() == delete.getUser().getId()) {
+                commentRepository.deleteById(id);
+            }
+
         }catch (Exception ex){
             throw new InvalidCommentException(ex.getMessage());
         }

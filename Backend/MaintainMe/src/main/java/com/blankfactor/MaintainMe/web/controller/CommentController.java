@@ -32,14 +32,14 @@ public class CommentController {
         return ResponseEntity.ok(commentService.sendComment(request, id));
     }
 
-    @PostMapping("/edit")
-    public ResponseEntity<Comment> editComment(@RequestBody EditCommentRequest request) throws Exception {
-        return ResponseEntity.ok(commentService.editComment(request));
+    @PostMapping("/edit/{id}")
+    public ResponseEntity<Comment> editComment(@PathVariable("id") Long id,@RequestBody EditCommentRequest request) throws Exception {
+        return ResponseEntity.ok(commentService.editComment(request, id));
     }
 
-    @PostMapping("/delete")
-    public ResponseEntity<Comment> deleteComment(@RequestBody DeleteCommentRequest request) throws Exception {
-        return ResponseEntity.ok(commentService.deleteComment(request));
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<Comment> deleteComment(@PathVariable("id") Long id,@RequestBody DeleteCommentRequest request) throws Exception {
+        return ResponseEntity.ok(commentService.deleteComment(request, id));
     }
 
     @ExceptionHandler(InvalidCommentException.class)

@@ -34,6 +34,21 @@ public class WebSecurityConfig {
 //                .requestMatchers("/**").fullyAuthenticated()
 //                .and()
 //                .csrf().disable()
+//                .cors().disable()
+//              //  .authorizeRequests().anyRequest().permitAll()
+//               // .and()
+//                .oauth2Login().and()
+//               .build();
+//
+//    }
+
+//    @Bean
+//    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
+//       return http
+//                .authorizeRequests()
+//                .requestMatchers("/**").fullyAuthenticated()
+//                .and()
+//                .csrf().disable()
 //                .cors().and()
 //                .authorizeRequests().anyRequest().permitAll()
 //                .and()

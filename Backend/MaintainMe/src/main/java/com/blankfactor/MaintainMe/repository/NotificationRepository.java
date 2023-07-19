@@ -1,5 +1,7 @@
 package com.blankfactor.MaintainMe.repository;
 
+
+import com.blankfactor.MaintainMe.entity.Comment;
 import com.blankfactor.MaintainMe.entity.Invoice;
 import com.blankfactor.MaintainMe.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +18,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query(value = "SELECT * FROM notification u WHERE u.id = :id", nativeQuery = true)
     Notification getNotificationById(@Param("id") Long id);
+
 
 
 }
