@@ -76,8 +76,11 @@ public class UserService {
 
     @Transactional
     public void ManagerCreateUser(ManagerCreateUser managerCreateUser) throws Exception {
-
         UserRoleBuilding userRoleBuilding = new UserRoleBuilding();
+        User user = new User();
+        user.setEmail(managerCreateUser.getEmail());
+        user.setFirstName(managerCreateUser.getFirstName());
+        user.setLastName(managerCreateUser.getLastName());
 
         Building building = buildingRepository.findById(managerCreateUser.getBuildingId()).orElse(null);
         Role role = new Role();
@@ -115,14 +118,11 @@ public class UserService {
                     + "Please login and change your password for security reasons.";
         }
 
-            localUserRepository.save(user);
+        localUserRepository.save(user);
 
-            emailService.sendEmail(user.getEmail(), subject, body);
+        emailService.sendEmail(user.getEmail(), subject, body);
 
-            userRoleBuildingRepository.save(userRoleBuilding);
-        }
-
-        invitationService.sendInvitation(managerCreateUser);
+        userRoleBuildingRepository.save(userRoleBuilding);
 
     }
 

@@ -35,7 +35,7 @@ public class InvitationService {
 
             invitation.setUnit(unitRepository.findById(managerCreateUser.getUnitId())
                     .orElseThrow(null));
-            invitation.setBuilding(buildingRepository.findById(managerCreateUser.getBuildingID())
+            invitation.setBuilding(buildingRepository.findById(managerCreateUser.getBuildingId())
                     .orElseThrow(null));
             invitation.setUser(userRepository.getUserByEmail(managerCreateUser.getEmail()));
             invitation.setJointStatus(false);
