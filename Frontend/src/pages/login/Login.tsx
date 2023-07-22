@@ -1,5 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   IconButton,
   useTheme,
@@ -20,9 +21,10 @@ import useAuthValidations from "../../common/utils";
 import GoogleButton from "./GoogleButton";
 import { authService } from "../../services/authService";
 import "./ErrorStyles.scss";
-import apiService from "../../services/apiService";
+import { setToken } from "../../store/loggedUser/loggedUser";
 
 const SignInSide = () => {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
@@ -41,34 +43,29 @@ const SignInSide = () => {
       email: formValues.email,
       password: formValues.password,
     };
+
+    let response;
     try {
-      const response = await authService.login(user);
-      const token = response.data.jwt;
-      const userId = response.data.user.id;
-
-      try {
-        const userBuildingIdResponse = await apiService.getManagedBuildings();
-        const buildingId = userBuildingIdResponse.data[0].buildingId;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("userId", userId);
-        localStorage.setItem("buildingId", buildingId);
-
-        console.log("Token: ", token);
-        console.log("userId: ", userId);
-        console.log("buildingId: ", buildingId);
-
-        navigate("/");
-      } catch (error) {
-        console.error("Failed to get buildingId:", error);
-      }
+      response = await authService.login(user);
     } catch (error: any) {
       if (error.response?.status === 400) {
         setErrorMessage("Invalid Email or Password");
       } else {
         console.error("Login failed:", error);
       }
+      return;
     }
+
+    const token = response.data.jwt;
+    const userId = response.data.user.id;
+
+    dispatch(setToken(token));
+    localStorage.setItem("userId", userId);
+
+    console.log("Token: ", token);
+    console.log("userId: ", userId);
+
+    navigate("/");
   };
 
   const handleChange = (

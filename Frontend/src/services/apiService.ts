@@ -3,6 +3,7 @@ import { config } from "../config/config";
 import { Building } from "./buildingRegisterInterface";
 import { CreateUser } from "../pages/register/registerManager/interfaces";
 import { Notification } from "../pages/notifications/NotificationInterface";
+
 const token: string | undefined = localStorage.getItem("token") || undefined;
 const apiService = {
   getAllCountries: async () => {

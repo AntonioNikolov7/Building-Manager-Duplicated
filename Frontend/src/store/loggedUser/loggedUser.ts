@@ -17,7 +17,10 @@ export const userState = createSlice({
     setUser: (state, action: PayloadAction<LoggedUser["currentUser"]>) => {
       state.currentUser = action.payload;
     },
-
+    setToken: (state, action: PayloadAction<string>) => {
+      state.token = action.payload;
+      localStorage.setItem("token", action.payload);
+    },
     setRole: (state, action: PayloadAction<LoggedUser["role"]>) => {
       state.role = action.payload;
       localStorage.setItem("role", JSON.stringify(action.payload));
@@ -33,9 +36,10 @@ export const userState = createSlice({
   },
 });
 
-export const { setUser, setRole, logout } = userState.actions;
+export const { setUser, setToken, setRole, logout } = userState.actions;
 
 export const selectUser = (state: RootState) => state.loggedUser.currentUser;
 export const selectRole = (state: RootState) => state.loggedUser.role;
+export const selectToken = (state: RootState) => state.loggedUser.token;
 
 export default userState.reducer;

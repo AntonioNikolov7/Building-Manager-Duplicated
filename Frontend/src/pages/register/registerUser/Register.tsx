@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -15,6 +15,7 @@ import { FormValues } from "../../../common/RegisterInterfaces";
 import { RegisterUser } from "../../../store/users/interface";
 import apiService from "../../../services/apiService";
 import { authService } from "../../../services/authService";
+import { selectToken } from "../../../store/loggedUser/loggedUser";
 
 const REQUIRED_FIELDS: (keyof FormValues)[] = [
   "firstName",
