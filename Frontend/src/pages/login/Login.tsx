@@ -1,5 +1,6 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   IconButton,
   useTheme,
@@ -20,14 +21,17 @@ import useAuthValidations from "../../common/utils";
 import GoogleButton from "./GoogleButton";
 import { authService } from "../../services/authService";
 import "./ErrorStyles.scss";
+import { setToken } from "../../store/loggedUser/loggedUser";
 
 const SignInSide = () => {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { formValues, setFormValues, formErrors, validateField } =
     useAuthValidations();
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
@@ -39,17 +43,29 @@ const SignInSide = () => {
       email: formValues.email,
       password: formValues.password,
     };
+
+    let response;
     try {
-      const response = await authService.login(user);
-      localStorage.setItem("token", response.data.jwt);
-      localStorage.setItem("userId", response.data.user.id);
-      navigate("/");
-    } catch (error) {
+      response = await authService.login(user);
+    } catch (error: any) {
       if (error.response?.status === 400) {
         setErrorMessage("Invalid Email or Password");
       } else {
+        console.error("Login failed:", error);
       }
+      return;
     }
+
+    const token = response.data.jwt;
+    const userId = response.data.user.id;
+
+    dispatch(setToken(token));
+    localStorage.setItem("userId", userId);
+
+    console.log("Token: ", token);
+    console.log("userId: ", userId);
+
+    navigate("/");
   };
 
   const handleChange = (

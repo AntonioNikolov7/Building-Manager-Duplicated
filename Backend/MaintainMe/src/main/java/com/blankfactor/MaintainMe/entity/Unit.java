@@ -54,4 +54,7 @@ public class Unit {
     @OneToMany(mappedBy = "unit", orphanRemoval = true)
     private List<Invoice> invoices = new ArrayList<>();
 
+    @OneToMany(mappedBy = "unit", orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
 }

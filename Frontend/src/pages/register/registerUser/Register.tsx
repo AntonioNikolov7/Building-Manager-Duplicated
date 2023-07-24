@@ -1,5 +1,5 @@
-import React, { ChangeEvent } from "react";
-import { useDispatch } from "react-redux";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -12,9 +12,10 @@ import {
 import SelectField from "../SelectField";
 import useAuthValidations from "../../../common/utils";
 import { FormValues } from "../../../common/RegisterInterfaces";
-import { addUser } from "../../../store/users/userSlice";
-import Users from "../../users/Users.json";
 import { RegisterUser } from "../../../store/users/interface";
+import apiService from "../../../services/apiService";
+import { authService } from "../../../services/authService";
+import { selectToken } from "../../../store/loggedUser/loggedUser";
 
 const REQUIRED_FIELDS: (keyof FormValues)[] = [
   "firstName",
@@ -24,10 +25,16 @@ const REQUIRED_FIELDS: (keyof FormValues)[] = [
   "unit",
 ];
 
+interface Unit {
+  unitNumber: number;
+  id: number;
+}
+
 const Register: React.FC = () => {
   const theme = useTheme();
-  const buildings = Array.from(new Set(Users.map((user) => user.buildingID)));
-  const units = Array.from(new Set(Users.map((user) => user.unitID)));
+  const [managedBuildings, setManagedBuildings] = useState([]);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const buildingId = localStorage.getItem("buildingId");
 
   const {
     formValues,
@@ -40,6 +47,44 @@ const Register: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchManagedBuildings = async () => {
+      try {
+        const response = await apiService.getManagedBuildings();
+        localStorage.setItem("buildingId", response.data[0].buildingId);
+        const buildingNames = response.data.map(
+          (b: { buildingName: string }) => b.buildingName
+        );
+        setManagedBuildings(buildingNames);
+      } catch (error) {}
+    };
+
+    fetchManagedBuildings();
+  }, []);
+
+  useEffect(() => {
+    if (managedBuildings) {
+      const getBuildingUnits = async () => {
+        try {
+          const response = await apiService.getUnitByBuildingId();
+
+          setUnits(response.data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      getBuildingUnits();
+    }
+  }, [managedBuildings]);
+
+  const selectUnit = (unitNumber: number) => {
+    const selectedUnit = units.find((unit) => unit.unitNumber === unitNumber);
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      unit: selectedUnit ? selectedUnit.id : 0,
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -48,18 +93,23 @@ const Register: React.FC = () => {
     );
 
     const userValues = {
-      unitID: formValues.unit,
+      unitId: formValues.unit,
       firstName: formValues.firstName,
       lastName: formValues.lastName,
       email: formValues.email,
-      buildingID: Number(formValues.building),
+      buildingId: Number(buildingId),
     };
 
     const newUser: RegisterUser = {
       ...userValues,
     };
-
-    dispatch(addUser(newUser));
+    const registerUser = async () => {
+      try {
+        console.log(userValues);
+        const response = await authService.registerUser(newUser);
+      } catch (error) {}
+    };
+    registerUser();
     navigate("/users");
   };
 
@@ -78,6 +128,8 @@ const Register: React.FC = () => {
       [fieldName]: event.target.value,
     });
   };
+
+  let selectedUnit = units.find((unit) => unit.id === formValues.unit);
 
   return (
     <Box
@@ -100,7 +152,7 @@ const Register: React.FC = () => {
           textDecoration: "none",
         }}
       >
-        Register User
+        Add User
       </Typography>
       <Box
         component="form"
@@ -153,7 +205,7 @@ const Register: React.FC = () => {
         />
         <Autocomplete<string | number>
           id="combo-box-demo"
-          options={buildings}
+          options={managedBuildings}
           sx={{ width: "100%" }}
           getOptionLabel={(option) => option.toString()}
           renderInput={(params) => (
@@ -164,9 +216,9 @@ const Register: React.FC = () => {
         />
         <SelectField
           label="Unit"
-          items={units.join(",").split(",")}
-          value={formValues.unit === 0 ? "" : formValues.unit}
-          onChange={setUnit}
+          items={units.map((unit) => unit.unitNumber.toString())}
+          value={selectedUnit ? selectedUnit.unitNumber.toString() : ""}
+          onChange={(value) => selectUnit(Number(value))}
         />
         <Button
           type="submit"

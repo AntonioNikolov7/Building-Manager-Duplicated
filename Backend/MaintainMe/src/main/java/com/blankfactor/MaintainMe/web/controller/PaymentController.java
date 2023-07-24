@@ -4,6 +4,7 @@ import com.blankfactor.MaintainMe.entity.Payment;
 import com.blankfactor.MaintainMe.entity.User;
 import com.blankfactor.MaintainMe.repository.LocalUserRepository;
 import com.blankfactor.MaintainMe.service.PaymentService;
+import com.blankfactor.MaintainMe.web.resource.PaymentHistoryRequest;
 import com.blankfactor.MaintainMe.web.resource.PaymentRequest;
 import lombok.AllArgsConstructor;
 import org.mapstruct.Qualifier;
@@ -37,11 +38,9 @@ public class PaymentController {
     }
 
     @GetMapping("/history")
-    public List<Payment> paymentHistory() {
-        return paymentService.getPaymentHistory();
+    public List<Payment> paymentHistory(@RequestBody PaymentHistoryRequest paymentHistoryRequest) {
+        return paymentService.getPaymentHistory(paymentHistoryRequest);
     }
-
-    // @Scheduled(cron = "0 0 12 1 * ?") // Run at 12 o'clock on the first day of every month
 
     @Scheduled(cron = "0 0 17 15 * ?")
     public void runTask() {

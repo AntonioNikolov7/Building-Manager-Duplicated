@@ -7,6 +7,7 @@ import com.blankfactor.MaintainMe.paymentProcessor.PaymentProcessor;
 import com.blankfactor.MaintainMe.repository.InvoiceRepository;
 import com.blankfactor.MaintainMe.repository.LocalUserRepository;
 import com.blankfactor.MaintainMe.repository.PaymentRepository;
+import com.blankfactor.MaintainMe.web.resource.PaymentHistoryRequest;
 import com.blankfactor.MaintainMe.web.resource.PaymentRequest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -31,13 +32,15 @@ public class PaymentService {
     private final EmailService emailService;
     private final LocalUserRepository userRepository;
     private final PaymentProcessor paymentProcessor;
+    private final JWTService jwtService;
 
     @PersistenceContext
     private final EntityManager entityManager;
 
     public Payment makePayment(PaymentRequest paymentRequest) {
 
-        User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        String email =  jwtService.getEmail(paymentRequest.getToken());
+        User authUser = userRepository.getUserByEmail(email);
 
         Date date = new Date();
 
@@ -81,10 +84,11 @@ public class PaymentService {
         return null;
     }
 
-    public List<Payment> getPaymentHistory(){
+    public List<Payment> getPaymentHistory(PaymentHistoryRequest paymentHistoryRequest){
 
-        User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        System.out.println(authUser.getEmail());
+        String email =  jwtService.getEmail(paymentHistoryRequest.getToken());
+        User authUser = userRepository.getUserByEmail(email);
+
         return paymentRepository.findAllByUserId(authUser.getId());
     }
 

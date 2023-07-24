@@ -9,7 +9,10 @@ import com.blankfactor.MaintainMe.web.resource.Login.LoginRequest;
 import com.blankfactor.MaintainMe.web.utilities.GmailChecker;
 import com.blankfactor.MaintainMe.web.utilities.RandomPassword;
 import jakarta.mail.MessagingException;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +25,8 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Getter
+@Setter
 public class UserService {
 
     private final LocalUserRepository localUserRepository;
@@ -29,13 +34,11 @@ public class UserService {
     private final JWTService jwtService;
     private final AddressRepository addressRepository;
     private final BuildingRepository buildingRepository;
-
     private final EmailService emailService;
     private final UserRoleBuildingRepository userRoleBuildingRepository;
     private final ResetTokenRepository resetTokenRepository;
-
-    ManagerCreateUser managerCreateUser;
     private final UnitRepository unitRepository;
+    private final InvitationService invitationService;
 
 
     public User register(RegistrationRequestManager registrationRequestManager) throws UserAlreadyExistsException {
@@ -67,22 +70,19 @@ public class UserService {
         role.setId(2L);
 
         UserRoleBuilding userRoleBuilding = new UserRoleBuilding(user, role, savedBuilding);
-
         userRoleBuildingRepository.save(userRoleBuilding);
-
-
+        authenticate(user);
     }
 
     @Transactional
-    public void ManagerCreateUser(ManagerCreateUser managerCreateUser) throws UserAlreadyExistsException, MessagingException, UnsupportedEncodingException {
-
+    public void ManagerCreateUser(ManagerCreateUser managerCreateUser) throws Exception {
         UserRoleBuilding userRoleBuilding = new UserRoleBuilding();
         User user = new User();
         user.setEmail(managerCreateUser.getEmail());
         user.setFirstName(managerCreateUser.getFirstName());
         user.setLastName(managerCreateUser.getLastName());
 
-        Building building = buildingRepository.findById(managerCreateUser.getBuildingID()).orElse(null);
+        Building building = buildingRepository.findById(managerCreateUser.getBuildingId()).orElse(null);
         Role role = new Role();
         role.setId(1L);
         user.setUnit(unitRepository.findById(managerCreateUser.getUnitId()).orElse(null));
@@ -96,21 +96,25 @@ public class UserService {
         String subject;
         String body;
 
+        String password = RandomPassword.generateRandomPassword();
+        user.setPassword(encryptionService.encryptPassword(password));
+
         if (isGoogleMail) {
             user.setPassword(RandomPassword.generateRandomPassword());
             subject = "Account Registration - Login Credentials";
             body = "Hello " + user.getFirstName() + ",\n\n"
                     + "Your account has been created. Here are your credentials:\n"
-                    + "Password: " + user.getPassword() + "\n\n"
+                    + "Password: " + password + "\n\n"
                     + "Your account has been created. You can log in to the app using your Google profile or Your Credentials.\n"
                     + "Click the following link to log in: " + "https://example.com/google-login";
         } else {
-            user.setPassword(RandomPassword.generateRandomPassword());
+
+
             // Send email with a link to login and the credentials (username and randomly generated password)
             subject = "Account Registration - Login Credentials";
             body = "Hello " + user.getFirstName() + ",\n\n"
                     + "Your account has been created. Here are your credentials:\n"
-                    + "Password: " + user.getPassword() + "\n\n"
+                    + "Password: " + password + "\n\n"
                     + "Please login and change your password for security reasons.";
         }
 
@@ -140,8 +144,6 @@ public class UserService {
     public void updateResetPasswordToken(String token, String email) throws Exception {
 
         PasswordResetToken passwordResetToken = new PasswordResetToken();
-
-
         User user = localUserRepository.getUserByEmail(email);
         resetTokenRepository.deleteAllByUser_Id(user.getId());
 
@@ -176,8 +178,8 @@ public class UserService {
 
         PasswordResetToken passwordResetToken = resetTokenRepository.getPasswordResetTokenByEmail(user.getEmail());
         resetTokenRepository.delete(passwordResetToken);
-
         localUserRepository.save(user);
+
     }
 
     private String getEmailFromToken(OAuth2AuthenticationToken oAuth2AuthenticationToken) {
@@ -190,6 +192,7 @@ public class UserService {
     public Collection<Map<String, Object>> getBuildingsManagedByLoggedManager() {
 
         User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        System.out.println(authUser.getEmail());
         Role role = new Role();
         role.setId(2L);
         Collection<Map<String, Object>> buildingId = userRoleBuildingRepository.getBuildingDataByUserIdAndRoleId(authUser.getId(), role.getId());
@@ -199,10 +202,7 @@ public class UserService {
 
 
     public Map<String, Object> getRoleInBuilding() {
-
         User authUser = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
-
         Map<String, Object> roleInBuilding = userRoleBuildingRepository.findRoleAndBuildingByUserId(authUser.getId());
         return roleInBuilding;
     }

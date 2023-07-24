@@ -13,16 +13,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NotificationEditRequest {
 
-    private Long id;
+    private String token;
 
     @NotBlank(message = "message title cannot be empty.")
     @NotEmpty
-    private String messageTitle;
+    private String title;
 
     @NotBlank(message = "message information cannot be empty.")
     @NotEmpty
-    private String information;
-
-    private Long buildingId;
+    private String description;
 
 }

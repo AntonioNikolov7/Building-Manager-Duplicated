@@ -1,6 +1,7 @@
 import { fetchWrapper } from "./fetchWrapper";
 import { config } from "../config/config";
 import { User } from "./loginUserInterface";
+import { RegisterUser } from "../store/users/interface";
 
 const login = async (body: User) => {
   try {
@@ -13,19 +14,21 @@ const login = async (body: User) => {
     throw error;
   }
 };
-const getUserRole = async () => {
-  const token = localStorage.getItem("token");
 
-  if (!token) {
-    throw new Error("No token found in local storage");
-  }
-
+const getUserRole = async (token: string) => {
   const response = await fetchWrapper.get(
     `${config.baseURL}${config.get_user_role}`,
     token
   );
-
   return response.data;
 };
 
-export const authService = { login, getUserRole };
+const registerUser = async (body: RegisterUser) => {
+  const response = await fetchWrapper.post<RegisterUser>(
+    `${config.baseURL}${config.register_user}`,
+    body
+  );
+  return response.data;
+};
+
+export const authService = { login, getUserRole, registerUser };

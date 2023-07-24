@@ -49,11 +49,14 @@ public class AuthenticationController {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginBody){
+
         String jwt=userService.loginUser(loginBody);
         if(jwt==null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

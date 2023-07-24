@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentRequest {
 
+    private String token;
     private Long invoiceId;
     private Float payedAmount;
 }

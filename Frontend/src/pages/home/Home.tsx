@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import homePagePic from "../../assets/homePageView.jpg";
 import logo from "../../assets/blankfactor-logo.svg";
-import { useDispatch } from "react-redux";
-import { setRole } from "../../store/loggedUser/loggedUser";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectRole,
+  selectToken,
+  setRole,
+} from "../../store/loggedUser/loggedUser";
 import { authService } from "../../services/authService";
 
 interface HomeProps {
@@ -12,19 +16,28 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = () => {
   const dispatch = useDispatch();
-  const token = localStorage.getItem("token");
-  if (token) {
-    const getRole = async () => {
-      let roleResponse;
-      try {
-        roleResponse = await authService.getUserRole();
-        dispatch(setRole(roleResponse.roleId));
-      } catch (roleError) {}
-      return roleResponse ? roleResponse.roleId : null;
-    };
+  const role = useSelector(selectRole); // Access the role from the Redux store
+  const token = useSelector(selectToken);
+  const getRole = async () => {
+    let roleResponse;
+    try {
+      roleResponse = await authService.getUserRole(token);
+      dispatch(setRole(roleResponse.roleId));
+    } catch (roleError) {}
+    return roleResponse ? roleResponse.roleId : null;
+  };
 
-    getRole();
-  }
+  getRole();
+
+  // const getRelatedBuildingId = async () => {
+  //   try {
+  //     const response = await apiService.getManagedBuildings();
+  //     localStorage.setItem("buildingId", response.data[0].buildingId);
+  //     console.log(response);
+  //   } catch (error) {}
+  // };
+
+  // getRelatedBuildingId();
 
   return (
     <div

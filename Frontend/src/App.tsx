@@ -12,22 +12,15 @@ import { RootState } from "./store/store";
 import Users from "./pages/users/Users";
 import AddBuilding from "./pages/addBuilding/AddBuilding";
 import Footer from "./components/Footer/Footer";
-import { selectRole } from "./store/loggedUser/loggedUser";
 import AdminRegister from "./pages/register/registerManager/AdminRegister";
+import { selectRole } from "./store/loggedUser/loggedUser"; // Import your selector
 
-let manager = false;
-let currentUser = false;
 const App = () => {
   const isDarkMode = useSelector((state: RootState) => state.theme.darkMode);
   const theme = createMyTheme(isDarkMode);
-  const role = useSelector(selectRole);
-
-  if (role === 1) {
-    currentUser = true;
-  }
-  if (role === 2) {
-    manager = true;
-  }
+  const role = useSelector(selectRole); // Get the role from the Redux store
+  let manager = role === 2;
+  let currentUser = role === 1;
 
   return (
     <ThemeProvider theme={theme}>
@@ -52,8 +45,7 @@ const App = () => {
               element={<Announcements currentUser={currentUser} />}
             />
           )}
-
-          {manager && <Route path="/addbuilding" element={<AddBuilding />} />}
+          {manager && <Route path="/add-building" element={<AddBuilding />} />}
           {!currentUser && !manager && (
             <Route path="/register-admin" element={<AdminRegister />} />
           )}

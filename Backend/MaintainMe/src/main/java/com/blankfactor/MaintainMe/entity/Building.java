@@ -41,4 +41,7 @@ public class Building {
     @OneToMany(mappedBy = "building", orphanRemoval = true)
     private List<UserRoleBuilding> userRoleBuildings = new ArrayList<>();
 
+    @OneToMany(mappedBy = "building", orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
 }

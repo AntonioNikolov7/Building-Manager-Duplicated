@@ -34,16 +34,17 @@ public class User {
     private String email;
 
     @JsonIgnore
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "unit_id", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
     private Unit unit;
 
     @JsonIgnore
     @ManyToMany
     @JoinTable(name = "unit_owner",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "units_id"))
+            joinColumns = @JoinColumn(name = "user_id", nullable = true),
+            inverseJoinColumns = @JoinColumn(name = "units_id", nullable = true))
     private List<Unit> units = new ArrayList<>();
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", orphanRemoval = true)
@@ -51,6 +52,17 @@ public class User {
 
     @Column(name = "auto_pay")
     private Integer autoPay;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
+    public List<Invitation> getInvitations() {
+        return invitations;
+    }
+
+    public void setInvitations(List<Invitation> invitations) {
+        this.invitations = invitations;
+    }
 
     public Integer getAutoPay() {
         return autoPay;

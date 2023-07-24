@@ -42,7 +42,8 @@ const AdminRegister: React.FC = () => {
   useEffect(() => {
     const fetchCountryNames = async () => {
       try {
-        const data = await apiService.getAllCountries();
+        const response = await apiService.getAllCountries();
+        const data = response.data;
         const names = data.map((country: Country) => country.name.common);
         const sortedCountries = names.sort((a: string, b: string) =>
           a.localeCompare(b)
@@ -88,7 +89,7 @@ const AdminRegister: React.FC = () => {
         floors: formValues.floors,
         entrances: formValues.entrances,
       },
-      registrationRequest: {
+      registrationRequestManager: {
         email: formValues.email,
         password: formValues.password,
         firstName: formValues.firstName,
@@ -96,6 +97,7 @@ const AdminRegister: React.FC = () => {
       },
     };
     try {
+      console.log(manager);
       await apiService.registerManager(manager);
       navigate("/");
     } catch (error) {}
