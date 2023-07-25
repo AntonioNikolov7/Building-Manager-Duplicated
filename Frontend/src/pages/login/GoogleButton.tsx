@@ -2,7 +2,6 @@ import { GoogleLogin } from "@react-oauth/google";
 
 const GoogleButton = () => {
   const postCredentials = async (credentials) => {
-    console.log(credentials.credential);
     const response = await fetch(
       "http://localhost:8080/login/oauth2/code/google",
       {
@@ -18,7 +17,6 @@ const GoogleButton = () => {
 
     if (response.ok) {
       const jsonResponse = await response.json();
-      console.log(jsonResponse);
     } else {
       console.log("Error posting credentials");
     }

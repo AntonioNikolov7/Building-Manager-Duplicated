@@ -22,8 +22,6 @@ const Home: React.FC<HomeProps> = () => {
   const token = useSelector(selectToken);
   const notifications = useSelector(selectNotifications);
 
-  console.log(notifications);
-
   const getRole = async () => {
     let roleResponse;
     try {
@@ -39,7 +37,6 @@ const Home: React.FC<HomeProps> = () => {
     try {
       const response = await apiService.getManagedBuildings();
       localStorage.setItem("buildingId", response.data[0].buildingId);
-      console.log(response);
     } catch (error) {}
   };
 

@@ -75,13 +75,12 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     const deleteAnnouncement = async () => {
       try {
         const response = await apiService.deleteAnnouncement(id, token);
-        console.log(response);
       } catch (error) {
         console.error(error);
       }
-      window.location.reload();
     };
     deleteAnnouncement();
+    window.location.reload();
   };
 
   const handleEditAnnouncement = () => {
@@ -115,9 +114,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       try {
         const response = await apiService.getComments(announcementId);
         if (response) {
-          response.data.forEach((comment) => {
-            console.log(comment);
-          });
+          response.data.forEach((comment) => {});
         }
       } catch (error) {
         console.error(error);

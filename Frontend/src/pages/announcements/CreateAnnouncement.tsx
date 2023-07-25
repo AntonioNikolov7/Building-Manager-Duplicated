@@ -54,7 +54,6 @@ const CreateAnnouncement: FC<CreateAnnouncementProps> = ({ open, setOpen }) => {
       try {
         const response = await apiService.getManagedBuildings();
         setManagedBuildings(response.data);
-        console.log(response.data);
       } catch (error) {}
     };
     fetchManagedBuildings();
@@ -68,14 +67,14 @@ const CreateAnnouncement: FC<CreateAnnouncementProps> = ({ open, setOpen }) => {
     setFormData((prevState) => ({
       ...prevState,
     }));
-
     try {
       const response = await apiService.createAnnouncement({
         ...formData,
         token,
       });
       dispatch(addNotification(response.data));
-      navigate("/");
+      window.location.reload();
+      navigate("/announcements");
     } catch (error) {}
 
     handleClose();

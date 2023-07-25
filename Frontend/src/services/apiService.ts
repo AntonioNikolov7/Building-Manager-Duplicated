@@ -50,7 +50,6 @@ const apiService = {
     token: string | undefined
   ) => {
     try {
-      console.log(token);
       const response = await fetchWrapper.delete(
         config.delete_announcement(announcementId),
         token
@@ -78,7 +77,6 @@ const apiService = {
     token: string | undefined
   ) => {
     try {
-      console.log(token);
       const response = await fetchWrapper.post(
         config.add_comment(announcementId),
         {
@@ -116,7 +114,6 @@ const apiService = {
     const token: string | undefined =
       localStorage.getItem("token") || undefined;
     try {
-      console.log(token);
       const response = await fetchWrapper.get(
         config.get_managed_buildings,
         token

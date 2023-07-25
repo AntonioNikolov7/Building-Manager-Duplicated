@@ -63,9 +63,6 @@ const SignInSide = () => {
     dispatch(setToken(token));
     localStorage.setItem("userId", userId);
 
-    console.log("Token: ", token);
-    console.log("userId: ", userId);
-
     navigate("/");
   };
 

@@ -19,7 +19,6 @@ const Notifications: FC<NotificationProps> = ({ currentUser }) => {
   const [notifications, setNotifications] = useState<NotificationCardProps[]>(
     []
   );
-  console.log(notifications);
   const theme = useTheme();
 
   useEffect(() => {
