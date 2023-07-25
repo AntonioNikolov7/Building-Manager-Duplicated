@@ -113,7 +113,10 @@ const apiService = {
   },
 
   getManagedBuildings: async () => {
+    const token: string | undefined =
+      localStorage.getItem("token") || undefined;
     try {
+      console.log(token);
       const response = await fetchWrapper.get(
         config.get_managed_buildings,
         token

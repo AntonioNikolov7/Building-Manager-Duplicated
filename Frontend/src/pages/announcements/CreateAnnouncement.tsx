@@ -12,6 +12,8 @@ import {
 import "./CreateAnnouncement.scss";
 import { style } from "./ModalStyle";
 import apiService from "../../services/apiService";
+import { useDispatch } from "react-redux";
+import { addNotification } from "../../store/notification/notificationSlice";
 
 interface CreateAnnouncementProps {
   open: boolean;
@@ -39,6 +41,8 @@ const CreateAnnouncement: FC<CreateAnnouncementProps> = ({ open, setOpen }) => {
 
   const theme = useTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   // const role = localStorage.getItem("role");
   // let user: boolean;
   // if (role == "1") {
@@ -70,8 +74,8 @@ const CreateAnnouncement: FC<CreateAnnouncementProps> = ({ open, setOpen }) => {
         ...formData,
         token,
       });
-      window.location.reload();
-      navigate("/announcements");
+      dispatch(addNotification(response.data));
+      navigate("/");
     } catch (error) {}
 
     handleClose();

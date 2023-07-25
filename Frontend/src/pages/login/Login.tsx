@@ -22,6 +22,7 @@ import GoogleButton from "./GoogleButton";
 import { authService } from "../../services/authService";
 import "./ErrorStyles.scss";
 import { setToken } from "../../store/loggedUser/loggedUser";
+import apiService from "../../services/apiService";
 
 const SignInSide = () => {
   const dispatch = useDispatch();

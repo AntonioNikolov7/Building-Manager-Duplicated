@@ -13,12 +13,12 @@ import Users from "./pages/users/Users";
 import AddBuilding from "./pages/addBuilding/AddBuilding";
 import Footer from "./components/Footer/Footer";
 import AdminRegister from "./pages/register/registerManager/AdminRegister";
-import { selectRole } from "./store/loggedUser/loggedUser"; // Import your selector
+import { selectRole } from "./store/loggedUser/loggedUser";
 
 const App = () => {
   const isDarkMode = useSelector((state: RootState) => state.theme.darkMode);
   const theme = createMyTheme(isDarkMode);
-  const role = useSelector(selectRole); // Get the role from the Redux store
+  const role = useSelector(selectRole);
   let manager = role === 2;
   let currentUser = role === 1;
 

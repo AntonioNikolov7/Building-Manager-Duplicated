@@ -8,6 +8,8 @@ import {
   setRole,
 } from "../../store/loggedUser/loggedUser";
 import { authService } from "../../services/authService";
+import apiService from "../../services/apiService";
+import { selectNotifications } from "../../store/notification/notificationSlice";
 
 interface HomeProps {
   manager: boolean;
@@ -16,8 +18,12 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = () => {
   const dispatch = useDispatch();
-  const role = useSelector(selectRole); // Access the role from the Redux store
+  const role = useSelector(selectRole);
   const token = useSelector(selectToken);
+  const notifications = useSelector(selectNotifications);
+
+  console.log(notifications);
+
   const getRole = async () => {
     let roleResponse;
     try {
@@ -29,15 +35,15 @@ const Home: React.FC<HomeProps> = () => {
 
   getRole();
 
-  // const getRelatedBuildingId = async () => {
-  //   try {
-  //     const response = await apiService.getManagedBuildings();
-  //     localStorage.setItem("buildingId", response.data[0].buildingId);
-  //     console.log(response);
-  //   } catch (error) {}
-  // };
+  const getRelatedBuildingId = async () => {
+    try {
+      const response = await apiService.getManagedBuildings();
+      localStorage.setItem("buildingId", response.data[0].buildingId);
+      console.log(response);
+    } catch (error) {}
+  };
 
-  // getRelatedBuildingId();
+  getRelatedBuildingId();
 
   return (
     <div
